@@ -15,7 +15,7 @@ def check_arg(args=None):
 		required='True'
                 )
         parser.add_argument('-i', '--input',
-		help='path to input file',
+		help='path to folder with transcript files',
 		required='True'
                 )
         parser.add_argument('-o', '--output',
@@ -31,9 +31,13 @@ def check_arg(args=None):
 #retrieve command line arguments and assign to variables
 args = check_arg(sys.argv[1:])
 form = args.format #need?
-infile = args.input #need?
+infile = args.input
 outfile = args.output #need?
 Entrez_email = args.email
+
+#temporary args
+infile = '../HCMV_transcriptomes'
+Entrez_email = 'tfischer1@luc.edu'
 
 #make a directory for all output files and project log
 out_directory = 'PipelineProject_Taylor_Fischer'
