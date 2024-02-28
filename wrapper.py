@@ -6,7 +6,7 @@ import sys
 import os
 from Bio import Entrez
 from Bio import SeqIO
-import pandas as pd #need?
+import pandas as pd
 
 #function to parse command line arguments
 def check_arg(args=None):
@@ -143,6 +143,32 @@ for i in range(len(sample_list)):
 #__________________________________________________
 ##Step 4: Find differentially expressed genes
 
+#prepare sample table with sample metadata and locations for use with sleuth
+with open('sample_table.txt', 'w') as st:
+        st.write(' '.join(['sample', 'condition', 'path']) + '\n')
+        for i in range(len(sample_list)):
+                path = 'kallisto_results/' +sample_list[i]
+                st.write(' '.join([sample_list[i], sample_conditions[i], path]) + '\n')
 
+#build command for running the separate 'sleuth.R' script
+#script will run sleuth to calculate differentially expressed genes and use dplyr to extract significant transcripts (FDR < 0.05)
+sleuth_CMD = 'Rscript ../sleuth.R'
+#run sleuth_CMD
+os.system(sleuth_CMD)
+
+#prepare output for logfile
+
+#write header row to logfile
+logfile.write('\ntarget_id\ttest_stat\tpval\tqval\n')
+
+#read in file fdr05_results.txt containing significant transcripts (space-separated file)
+sig_transcripts = pd.read_csv('fdr05_results.txt', sep=' ')
+#pull desired output columns into lists for easy iteration
+#subset data to only desired columns for output
+sig_transcripts_out = sig_transcripts[['target_id','test_stat','pval','qval']]
+#create iterator to pull out each row
+for i in range(sig_transcripts_out.shape[0]):
+        row= sig_transcripts_out.iloc[i, :]
+        logfile.write('\t'.join([str(entry) for entry in row]) + '\n')
 
 logfile.close()
