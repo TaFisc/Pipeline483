@@ -10,35 +10,15 @@ import pandas as pd
 
 #function to parse command line arguments
 def check_arg(args=None):
-	parser = argparse.ArgumentParser(description='Pipeline Project: Track 1')
-        parser.add_argument('-f', '--format',
-		help='options "sample" or "full"',
-		required='True'
-                )
-        parser.add_argument('-i', '--input',
-		help='full path to folder with transcript files',
-		required='True'
-                )
-        parser.add_argument('-o', '--output',
-		help='output file name',
-		required='True'
-		)
-        parser.add_argument('-e', '--email',
-                help='email for Entrez',
-                required='True'
-                )
-	return parser.parse_args(args)
+        parser = argparse.ArgumentParser(description='Pipeline Project: Track 1')
+        parser.add_argument('-i', '--input', help='full path to folder with transcript files', required='True')
+        parser.add_argument('-e', '--email', help='email for Entrez', required='True')
+        return parser.parse_args(args)
 
 #retrieve command line arguments and assign to variables
 args = check_arg(sys.argv[1:])
-form = args.format #need?
 infolder = args.input
-outfile = args.output #need?
 Entrez_email = args.email
-
-#temporary args
-infolder = '/home/tfischer1/Pipeline483/sample_data'
-Entrez_email = ''
 
 #store sample-relevant information
 #create list of samples
