@@ -40,6 +40,12 @@ Entrez_email = args.email
 infolder = '/home/tfischer1/Pipeline483/sample_data'
 Entrez_email = ''
 
+#store sample-relevant information
+#create list of samples
+sample_list = ['SRR5660030', 'SRR5660033', 'SRR5660044', 'SRR5660045']
+#create corresponding list of conditions
+sample_conditions = ['2dpi', '6dpi', '2dpi', '6dpi']
+
 #make a directory for all output files and project log
 out_directory = 'PipelineProject_Taylor_Fischer'
 os.system('mkdir ' +out_directory)
@@ -63,10 +69,9 @@ with open(CDSoutfile, 'w') as nfh:
                 if rec.features:
                         for feature in rec.features:
                                 if feature.type == "CDS":
-                                        nfh.write(">%s from %s\n%s\n" % (
-                                        feature.qualifiers['gene'][0],
-                                        rec.name,
-                                        feature.location.extract(rec).seq))
+                                        f_name = feature.qualifiers['gene'][0]
+                                        f_seq = feature.location.extract(rec).seq
+                                        nfh.write(f'>{f_name}\n{f_seq}\n')
 
 #Build index with Kallisto
 #create command to send to os.system
@@ -87,13 +92,6 @@ logfile.write(f'The HCMV genome ({transcriptome_ref}) has {str(round(CDS_count))
 
 #__________________________________________________
 ##Step 3: Quantify the TPM
-
-#first, store sample-relevant information
-
-#create list of samples
-sample_list = ['SRR5660030', 'SRR5660033', 'SRR5660044', 'SRR5660045']
-#create corresponding list of conditions
-sample_conditions = ['2dpi', '6dpi', '2dpi', '6dpi']
 
 #create a directory to hold kallisto results
 os.system('mkdir kallisto_results')
@@ -171,4 +169,63 @@ for i in range(sig_transcripts_out.shape[0]):
         row= sig_transcripts_out.iloc[i, :]
         logfile.write('\t'.join([str(entry) for entry in row]) + '\n')
 
+#__________________________________________________
+##Step 5: Find other Betaherpesvirinae strains with most differentially expressed gene
+
+#retrieve PROTEIN sequence of most differentially GENE
+
+#pull out top gene (gene name) from earlier sleuth results
+top_gene_id = sig_transcripts_out.loc[0,'target_id'] #1st row in the dataframe
+
+#use Biopython to read in nucl sequence from transcriptome.faa and convert to protein
+handle = open(CDSoutfile)
+
+#loop through each individual sequence, and if it is top_gene, transcribe to protein & write to fasta file
+for record in SeqIO.parse(handle, 'fasta'):
+        if record.id == top_gene_id:
+                top_prot_seq = record.seq.translate().strip('*')
+                with open('top_protein.fasta', 'w') as fa:
+                        fa.write(f'>{record.id}\n{str(top_prot_seq)}\n')
+
+#taxon of interest
+taxon = 'betaherpesvirinae'
+
+#gather Betaherpesvirinae NCBI sequences to build database for blast+ searches
+
+gather_db_seqs_CMD = 'datasets download virus genome taxon ' +taxon +' --refseq --include genome'
+#send to terminal
+os.system(gather_db_seqs_CMD)
+
+#need to unzip results from NCBI, so build CMD
+unzip_NCBI_CMD = 'unzip ncbi_dataset.zip'
+#send to terminal
+os.system(unzip_NCBI_CMD)
+
+#prepare command to build database of NUCL sequences
+make_db_CMD = 'makeblastdb -in ncbi_dataset/data/genomic.fna -out db/' +taxon +' -title ' +taxon +' -dbtype nucl'
+#send to terminal
+os.system(make_db_CMD)
+
+#run blast+
+#since query is PROT and subject is NUCL, use tblastn
+
+#prepare command to run tblastn
+#limit searches to 1 hsp per query-subject pair with -max_hsps flag
+blast_CMD = 'tblastn -query top_protein.fasta -db db/' +taxon +' -max_hsps 1 -out myresults.csv \
+        -outfmt "10 sacc pident length qstart qend sstart send bitscore evalue stitle"'
+#send to terminal
+os.system(blast_CMD)
+
+#prepare output to logfile
+#write header row to logfile
+logfile.write('\nsacc\tpident\tlength\tqstart\tqend\tsstart\tsend\tbitscore\tevalue\tstitle\n')
+
+#read in 1st 10 rows (top 10 hits) of file 'myresults.csv' containing blast hits
+top_blast_results = pd.read_csv('myresults.csv', nrows=10, header=None)
+#create iterator to pull out each row
+for i in range(top_blast_results.shape[0]):
+        row= top_blast_results.iloc[i, :]
+        logfile.write('\t'.join([str(entry) for entry in row]) + '\n')
+
+#at very end, close the logfile to write contents and save file
 logfile.close()
