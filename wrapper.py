@@ -6,6 +6,7 @@ import sys
 import os
 from Bio import Entrez
 from Bio import SeqIO
+import pandas as pd #need?
 
 #function to parse command line arguments
 def check_arg(args=None):
@@ -15,7 +16,7 @@ def check_arg(args=None):
 		required='True'
                 )
         parser.add_argument('-i', '--input',
-		help='path to folder with transcript files',
+		help='full path to folder with transcript files',
 		required='True'
                 )
         parser.add_argument('-o', '--output',
@@ -31,13 +32,13 @@ def check_arg(args=None):
 #retrieve command line arguments and assign to variables
 args = check_arg(sys.argv[1:])
 form = args.format #need?
-infile = args.input
+infolder = args.input
 outfile = args.output #need?
 Entrez_email = args.email
 
 #temporary args
-infile = '../HCMV_transcriptomes'
-Entrez_email = 'tfischer1@luc.edu'
+infolder = '/home/tfischer1/Pipeline483/sample_data'
+Entrez_email = ''
 
 #make a directory for all output files and project log
 out_directory = 'PipelineProject_Taylor_Fischer'
@@ -87,10 +88,60 @@ logfile.write(f'The HCMV genome ({transcriptome_ref}) has {str(round(CDS_count))
 #__________________________________________________
 ##Step 3: Quantify the TPM
 
-#to run kallisto, need to go up 1 directory from PipelineProject_Taylor_Fischer to where sample files are
-os.chdir('..')
-#create command to send to os.system
-kallisto_quant_CMD = 'for sample in *_1.fastq; do time kallisto quant -i '
+#first, store sample-relevant information
+
+#create list of samples
+sample_list = ['SRR5660030', 'SRR5660033', 'SRR5660044', 'SRR5660045']
+#create corresponding list of conditions
+sample_conditions = ['2dpi', '6dpi', '2dpi', '6dpi']
+
+#create a directory to hold kallisto results
+os.system('mkdir kallisto_results')
+
+#for each sample, create kallisto quant command that calculated TPM and run
+for sample in sample_list:
+        #build path to read1 fastq file
+        fq_path1 = infolder + '/' + sample + '_1.fastq'
+        #build path to read2 fastq file
+        fq_path2 = infolder + '/' + sample + '_2.fastq'
+        #build kallisto quant command (30 bootstraps, 2 threads)
+        quant_CMD = 'time kallisto quant -i index.idx -o kallisto_results/' \
+                +sample +' -b 30 -t 2 ' +fq_path1 + ' ' +fq_path2
+        #run command
+        os.system(quant_CMD)
+        
+#gather information for logfile
+
+#write header row to logfile
+logfile.write('\nsample\tcondition\tmin_tpm\tmed_tpm\tmean_tpm\tmax_tpm\n')
+
+#for each sample, access abundance.tsv file and pull into pd dataframe for access
+for i in range(len(sample_list)):
+        #build file path
+        abund_file = 'kallisto_results/' + sample_list[i] + '/abundance.tsv'
+        #read in abundance table, a tab-separated file
+        abund_table = pd.read_csv(abund_file, sep='\t')
+        #pull out tpm column into a list
+        tpms = abund_table['tpm']
+        #create list for sample output
+        output = []
+        #sample ID
+        output.append(sample_list[i])
+        #condition
+        output.append(sample_conditions[i])
+        #min_tpm
+        output.append(str(tpms.min()))
+        #med_tpm
+        output.append(str(tpms.median()))
+        #mean_tpm
+        output.append(str(tpms.mean()))
+        #max_tpm
+        output.append(str(tpms.max()))
+        #write to logfile
+        logfile.write('\t'.join(output) + '\n')
+
+#__________________________________________________
+##Step 4: Find differentially expressed genes
 
 
 
