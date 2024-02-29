@@ -10,7 +10,9 @@ kallisto
 sleuth
 
 ## Run the Code (Using Sample Data)
-
+```
+time python wrapper.py --input <path to input folder> --email <your email>
+```
 
 ## Overview of Pipeline Steps
 
