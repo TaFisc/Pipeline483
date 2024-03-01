@@ -2,10 +2,10 @@
 
 #### Pipeline project for COMP483 following **Track 1**: Differential expression in HCMV transcriptomes from patient donors 2- and 6-days post-infection (dpi).
 
-This pipeline is build specifically for use with the following samples from Cheng et al. 2017 (<https://www.ncbi.nlm.nih.gov/pubmed/29158406>):
-Donor 1 (2dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896360>
-Donor 1 (6dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896363>
-Donor 3 (2dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896374>
+This pipeline is build specifically for use with the following samples from Cheng et al. 2017 (<https://www.ncbi.nlm.nih.gov/pubmed/29158406>):   
+Donor 1 (2dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896360>  
+Donor 1 (6dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896363>  
+Donor 3 (2dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896374>  
 Donor 3 (6dpi): <https://www.ncbi.nlm.nih.gov/sra/SRX2896375>  
 
 # Instructions for Installation and Use
@@ -29,7 +29,7 @@ git clone https://github.com/TaFisc/Pipeline483.git
 The cloned repository will include the main Python script (wrapper.py) to run the pipeline, supporting scripts, and a directory (sample_data) containing sample test data.
 
 ## Run the Code
-The entire pipeline runs with a single call to a Python wrapper script that requires two arguments, `--input` and `--email`. The email address entered with `--email` will be used for retreiving records with Entrez. The `--input` argument should include the FULL path to the directory containing the donor transcriptome FASTQ files. To obtain the full path, `cd` to the directory containing the FASTQ files (e.g. sample_data included in the repo) , enter `pwd`, and copy the path for use with `--input`.
+The entire pipeline runs with a single call to a Python wrapper script that requires two arguments, `--input` and `--email`. The email address entered with `--email` will be used for retreiving records with Entrez. The `--input` argument should include the **FULL** path to the directory containing the donor transcriptome FASTQ files. To obtain the full path, `cd` to the directory containing the FASTQ files (e.g. sample_data included in the repo) , enter `pwd`, and copy the path for use with `--input`.
 
 From the main cloned directory (`cd` if needed), run the following command with insertions specific to your system:
 ```
