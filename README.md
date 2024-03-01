@@ -31,16 +31,16 @@ The cloned repository will include the main Python script (wrapper.py) for runni
 ## Run the Code
 The entire pipeline runs with a single call to a Python wrapper script that requires two arguments, `--input` and `--email`. The email address entered with `--email` will be used for retreiving records with Entrez. The `--input` argument should include the **FULL** path to the directory containing the donor transcriptome FASTQ files. 
 
-**For general use**, run the following from the main cloned directory `Pipeline483` with insertions specific to user system:
+***For general use***, run the following from the main cloned directory `Pipeline483` with insertions specific to user system:
 ```
 time python wrapper.py --input <full path to FASTQ directory> --email <your email>
 ```
-**For use with the sample data**, assuming the `git clone` command was just completed, perform the following steps:
+***For use with the sample data***, assuming the `git clone` command was just completed, perform the following steps:
 ```
 cd Pipeline483/sample_data
 pwd
 ```
-Copy the output file path (the FULL path) for use with `--input` argument.
+Copy the output file path from `pwd` (the FULL path) for use with `--input` argument, then change directory as follows.
 ```
 cd ..
 ```
