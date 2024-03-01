@@ -29,11 +29,24 @@ git clone https://github.com/TaFisc/Pipeline483.git
 The cloned repository will include the main Python script (wrapper.py) for running the pipeline, supporting scripts, and a directory (sample_data) containing sample test data.
 
 ## Run the Code
-The entire pipeline runs with a single call to a Python wrapper script that requires two arguments, `--input` and `--email`. The email address entered with `--email` will be used for retreiving records with Entrez. The `--input` argument should include the **FULL** path to the directory containing the donor transcriptome FASTQ files. To obtain the full path, `cd` to the directory containing the FASTQ files (e.g. sample_data included in the repo) , enter `pwd`, and copy the path for use with `--input`.
+The entire pipeline runs with a single call to a Python wrapper script that requires two arguments, `--input` and `--email`. The email address entered with `--email` will be used for retreiving records with Entrez. The `--input` argument should include the **FULL** path to the directory containing the donor transcriptome FASTQ files. 
 
-From the main cloned directory (`cd` if needed), run the following command with insertions specific to your system:
+**For general use**, run the following from the main cloned directory `Pipeline483` with insertions specific to user system:
 ```
 time python wrapper.py --input <full path to FASTQ directory> --email <your email>
+```
+**For use with the sample data**, assuming the `git clone` command was just completed, perform the following steps:
+```
+cd Pipeline483/sample_data
+pwd
+```
+Copy the output file path (the FULL path) for use with `--input` argument.
+```
+cd ..
+```
+Run the following command with the copied path and your email.
+```
+time python wrapper.py --input <copied path to sample_data directory> --email <your email>
 ```
 
 # Overview of Pipeline Steps
